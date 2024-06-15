@@ -1,0 +1,33 @@
+name: OWASP ZAP Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  zap_scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Start ZAP
+      uses: zaproxy/action-baseline@v0.9.0
+      with:
+        # The target URL to scan, replace with your target URL
+        target: 'https://demo.testfire.net'
+        # Fail the action if a ZAP scan rule fails (high, medium or low)
+        cmd_options: '-t https://demo.testfire.net -r zap_report.html -d'
+        # Fail the job if the score is below the given threshold (0-100)
+        fail_action: true
+        # Set the level to consider a failure (info, low, medium, high)
+        fail_severity: medium
+
+    - name: Upload ZAP Report
+      uses: actions/upload-artifact@v2
+      with:
+        name: zap-report
+        path: zap_report.html
